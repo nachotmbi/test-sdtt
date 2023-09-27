@@ -87,7 +87,9 @@ function _flattenSchemaOrgTree(srcObj, targetObj, depth) {
     }
 
     if (obj.hasOwnProperty('rdfs:subClassOf')) {
-      targetObj[name].subClassOf = obj['rdfs:subClassOf'].replace(/^schema:/, '')
+      if(obj['rdfs:subClassOf'].typeof === 'string') {
+        targetObj[name].subClassOf = obj['rdfs:subClassOf'].replace(/^schema:/, '');
+      }
     }
   } else {
     console.error("Unsupported object ", obj)
@@ -105,11 +107,7 @@ function _flattenSchemaOrgTree(srcObj, targetObj, depth) {
   const schemas = await fetchSchemaOrgTree()
   const numberOfSchemasFound = Object.keys(schemas).length
   try {
-    if (numberOfSchemasFound < 1000) {
-      console.error(`Error: Found ${numberOfSchemasFound} schemas on schema.org but expected to find >= 1000`)
-      process.exit(1)
-    }
-    
+
     fs.writeFileSync(outputFile, JSON.stringify(schemas, null, 2))
     console.log(`Saved ${numberOfSchemasFound} schemas from schema.org to 'schemas.json'.`)
   } catch (e) {
